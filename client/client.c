@@ -151,8 +151,9 @@ void clientLoop(int sock, unsigned char *session_key){
         }
 
         /* sign (encrypted!) data and send signature as well */
+        RSA *privateKey = readPrivateKey(client_private_key);
         unsigned char *sig = (unsigned char *) malloc(2048 * sizeof(char));
-        int siglen = SignData(client_private_key, crypt_msg, sig);
+        int siglen = SignData(privateKey, crypt_msg, sig);
         if ( send(sock, sig, siglen, 0) < 0){
             perror("Send failed");
             exit(1);

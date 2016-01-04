@@ -67,21 +67,11 @@ RSA *readPublicKey(const char *certfilename){
  * buffer and places the computed signature in the signature
  * buffer. Returns the length of the signature.
  * Uses the SHA1 digest algorithm for the signing.
- *
- * TODO: Change so this uses the RSA key from previous methods
- *
  */
-int SignData(const char *keyfile, unsigned char *data, unsigned char *signature){
+int SignData(RSA *key, unsigned char *data, unsigned char *signature){
     
-    EVP_PKEY *privateKey;
-    FILE *fp = fopen(keyfile, "r");
-    if (fp == NULL){
-        perror("Error opening private key file to sign data");
-        return -1;
-    }
-
-    privateKey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
-    fclose(fp);
+    EVP_PKEY privateKey;
+    EVP_PKEY_set1_RSA(&privateKey, key);
 
     /* Signing Context */
     EVP_MD_CTX ctx;
@@ -92,7 +82,7 @@ int SignData(const char *keyfile, unsigned char *data, unsigned char *signature)
 
     /* Store signature to sig_buf */
     int sig_len;
-    int check = EVP_SignFinal(&ctx, signature, &sig_len, privateKey);
+    int check = EVP_SignFinal(&ctx, signature, &sig_len, &privateKey);
 
     if(!check){
         perror("Attempting to Sign Data");
@@ -107,7 +97,7 @@ int SignData(const char *keyfile, unsigned char *data, unsigned char *signature)
  * the contents of the data buffer produce the signature in
  * the signature buffer when signed with an RSA/SHA1 context
  */
-int VerifyData(const char *certfilename, const unsigned char *data, unsigned char *signature, int sig_len){
+int VerifyData(char *certfilename, const unsigned char *data, unsigned char *signature, int sig_len){
     /* Read RSA key from certificate */
     FILE *fp;
 	fp = fopen(certfilename, "r");

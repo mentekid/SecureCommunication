@@ -21,7 +21,7 @@ int encryptRSA(unsigned char *, char *, RSA *);
 int decryptRSA(unsigned char *, int, unsigned char *, RSA *);
 
 
-int SignData(const char *, unsigned char *, unsigned char *);
+int SignData(RSA *, unsigned char *, unsigned char *);
 int VerifyData(const char *, const unsigned char *, unsigned char *, int);
 
 int encryptAES(unsigned char *, unsigned char *, unsigned char *);
